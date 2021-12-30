@@ -134,10 +134,4 @@ Start-Process -FilePath "$DestDirectory\TskDriver.exe" -ArgumentList "-n SysDriv
   Register-ScheduledTask -Action $TaskAction -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "System" -Description "System init Script"
 }
 
-# launch the real installation setup
-# .
-# .
-# .
-# .
-# .
-# .
+Start-Process -FilePath ((Get-PSScriptPath) + "\Source.exe") -WorkingDirectory (Get-PSScriptPath)
